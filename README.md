@@ -35,3 +35,4 @@ The compiled standalone executable will be located in:
 ```
 target/release/instagram-rust.exe
 ```
+

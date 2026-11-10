@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"]
+
 use std::env;
 use std::fs;
 use std::path::PathBuf;
@@ -8,6 +10,8 @@ use tao::{
     window::{Icon, WindowBuilder},
 };
 use wry::{WebContext, WebViewBuilder};
+
+mod bridge;
 
 const ICON_BYTES: &[u8] = include_bytes!("icon_32.rgba");
 
@@ -109,17 +113,10 @@ fn main() -> wry::Result<()> {
 
     let mut web_context = WebContext::new(Some(data_dir.clone()));
 
-    let init_script = r#"
-        window.addEventListener('DOMContentLoaded', () => {
-            const style = document.createElement('style');
-            style.textContent = `body { background: #000000 !important; }`;
-            document.head.appendChild(style);
-        });
-    "#;
-
     let _webview = WebViewBuilder::new_with_web_context(&mut web_context)
         .with_url("https://www.instagram.com")
-        .with_initialization_script(init_script)
+        .with_user_agent(bridge::ANDROID_APK_UA)
+        .with_initialization_script(bridge::INJECTED_MOBILE_BRIDGE_SCRIPT)
         .build(&window)
         .expect("Failed to create webview");
 
@@ -159,4 +156,3 @@ fn main() -> wry::Result<()> {
         }
     });
 }
-
